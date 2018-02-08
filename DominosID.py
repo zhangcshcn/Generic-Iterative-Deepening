@@ -75,8 +75,6 @@ class DominoSpace:
       return state.seqs[0] == state.seqs[1]
     else:
       return False
-      
-        
 
 
 class IterativeDeepening():
@@ -89,7 +87,7 @@ class IterativeDeepening():
     self.max_queue_size = min(max_queue_size, 2**20)
     self.max_states_num = max_states_num
   
-  def bfs(self, searchable):
+  def _bfs(self, searchable):
     # Initialize.
     self.bfs_queue.append(searchable.start_point)
     while (
@@ -126,10 +124,10 @@ class IterativeDeepening():
       return None, 1
               
   
-  def dfs(self, depth=1):
+  def _dfs(self, depth=1):
     pass
 
-  def search(self, searchable):
+  def Search(self, searchable):
     '''
     Args:
       searchable: an class object with 
@@ -142,7 +140,7 @@ class IterativeDeepening():
       1 no solution exists.
       2 no solution was found within the limits of search.
     '''
-    v, err = self.bfs(searchable)
+    v, err = self._bfs(searchable)
     return v, err
 
 
@@ -182,7 +180,7 @@ def main():
   search_engine = IterativeDeepening(
       max_queue_size=max_queue_size,
       max_states_num=max_states_num)
-  v, err = search_engine.search(dominos)
+  v, err = search_engine.Search(dominos)
   if v:
     print (v.seqs, v.history)
   else:
