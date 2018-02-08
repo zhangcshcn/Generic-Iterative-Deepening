@@ -4,45 +4,59 @@ from __future__ import print_function
 import sys
 import os
 
-class Dominos:
+class Domino:
+  def __init__(self, index, content):
+    self.index = index
+    self.content = content
+
+class PostCorrespondenceState:
+  def __init__(self, seqs=("", ""), history=None):
+    self.seqs = seqs
+    self.history = history or []
+  
+  def IsValid(self):
+    return True if self.history else False
+    
+
+class DominoSpace:
   '''
-  The class Dominos contains 
+  The class DominoSpace contains 
     fields:
-      start_point: a STATE to start with. Initialized to (("", ""), []).
-      dominos: a list of DOMINOs.
+      start_point: a PostCorrespondenceState to start with. 
+        Initialized to seqs=("", ""), history=[].
+      dominos: a list of Domino.
     methods:
       Neighbors(state): generate a list of neighboring STATEs of the 
         given state by trying concatenating dominos.
       Assert(state): determine if the STATE meets the goal.
-
-  STATE is defined as ((str_top, str_bottom), [sequence of dominos]).
-  DOMINO is defined as (idx, (str_top, str_bottom))
-  '''
-  def __init__(self, dominos=None, start_point=(("", ""),[])):
+ '''
+  def __init__(self, dominos, 
+               start_point=PostCorrespondenceState(("", ""),[])):
     self.start_point = start_point
-    self.dominos = sorted(dominos)
+    self.dominos = sorted(dominos, key=lambda d:d.index)
 
   def _CatDomino(self, state, domino):
     '''
     Concatenate a domino to a state and determine if it is valid.
     Args:
-      state: ((str_top, str_bottom),[sequence]).
+      state: a PostCorrespondenceState Object.
         A valid state should have at least one empty string ("").
       domino: (int, (str_top, str_bottom)) to concatenate to the state.
     Returns:
       If a valid state is produced, return the state.
       Otherwise return None.
     '''
-    state_top, state_bottom = state[0]
-    domino_top, domino_bottom = domino[1]
+    state_top, state_bottom = state.seqs
+    domino_top, domino_bottom = domino.content
     new_top, new_bottom = state_top + domino_top, state_bottom + domino_bottom
     max_len_prefix = min(len(new_top), len(new_bottom))
     if new_top[:max_len_prefix] == new_bottom[:max_len_prefix]:
-      return (
-        (new_top[max_len_prefix:], new_bottom[max_len_prefix:]),
-        state[1]+[domino[0]])
+      return PostCorrespondenceState(
+          (new_top[max_len_prefix:], new_bottom[max_len_prefix:]),
+          state.history+[domino.index]
+          )
     else:
-      return None
+      return PostCorrespondenceState()
 
   def Neighbors(self, state):
     '''
@@ -53,12 +67,16 @@ class Dominos:
     Returns:
       A list of the valid neighbor states.
     '''
-    return filter(
-      None, 
-      [self._CatDomino(state, d) for d in self.dominos])
+    neighbors = [self._CatDomino(state, d) for d in self.dominos]
+    return [n for n in neighbors if n.IsValid()]
   
   def Assert(self, state):
-    return state[0][0] == state[0][1]
+    if state.IsValid():
+      return state.seqs[0] == state.seqs[1]
+    else:
+      return False
+      
+        
 
 
 class IterativeDeepening():
@@ -81,7 +99,7 @@ class IterativeDeepening():
       # Get unseen neighboring states.
       neighbors = [
           n for n in searchable.Neighbors(u) 
-          if n[0] not in self.seen_bfs_states]
+          if n.seqs not in self.seen_bfs_states]
       # If max_queue_size is reached, stop bfs. 
       # Insert u back to the front of the queue.
       if len(neighbors) + len(self.bfs_queue) > self.max_queue_size:
@@ -94,7 +112,7 @@ class IterativeDeepening():
           # No solution was found within the limits of search.
           return None, 2
         
-        self.seen_bfs_states.add(v[0])
+        self.seen_bfs_states.add(v.seqs)
         
         if searchable.Assert(v):
           # Solution found.
@@ -143,7 +161,7 @@ def LoadFile(fname=None):
           dominos = []
           for line in f:
             idx, str_top, str_bottom = line.strip('\n').split(' ')
-            dominos.append((idx, (str_top, str_bottom)))
+            dominos.append(Domino(idx, (str_top, str_bottom)))
     except: 
       print('''Incompatible format! \n
     Please follow strictly the sample from the course webpage.
@@ -160,12 +178,15 @@ def main():
     return 
   fname = sys.argv[1]
   max_queue_size, max_states_num, dominos = LoadFile(fname)
-  dominos = Dominos(dominos=dominos)
+  dominos = DominoSpace(dominos=dominos)
   search_engine = IterativeDeepening(
       max_queue_size=max_queue_size,
       max_states_num=max_states_num)
   v, err = search_engine.search(dominos)
-  print (v, err)
+  if v:
+    print (v.seqs, v.history)
+  else:
+    print (v, err)
 
 if __name__ == '__main__':
   main()
