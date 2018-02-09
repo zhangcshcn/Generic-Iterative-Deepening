@@ -9,7 +9,7 @@ ERR_MESSAGE = {
     2: "No solution found WITHIN GIVEN CONSTRAINS."
 }
 
-class BFSnIterativeDeepening:
+class BFSnIterativeDeepening(object):
   '''
   This is a generic class for BFS with Iterative Deepening.
 
@@ -70,13 +70,13 @@ class BFSnIterativeDeepening:
         self.num_states_seen < self.max_states_num and
         self.bfs_queue):
       logging.info("bfs queue: %s", self.bfs_queue)
-      u = self.bfs_queue.pop(0)
+      node = self.bfs_queue.pop(0)
       # Get unseen neighboring states.
-      neighbors = self._GetNewNeighbors(u)
+      neighbors = self._GetNewNeighbors(node)
       # If max_queue_size is reached, stop bfs.
       # Insert u back to the front of the queue.
       if len(neighbors) + len(self.bfs_queue) > self.max_queue_size:
-        self.bfs_queue.insert(0, u)
+        self.bfs_queue.insert(0, node)
         return None, 2
       for neighbor in neighbors:
         self.num_states_seen += 1

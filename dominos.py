@@ -23,7 +23,7 @@ if args.debug:
   logging.getLogger().setLevel(logging.INFO)
 
 
-class Domino:
+class Domino(object):
   def __init__(self, index, content):
     self.index = index
     self.content = content
@@ -32,7 +32,7 @@ class Domino:
     return "{{{}: {}}}".format(self.index, self.content)
 
 
-class PostCorrespondenceState:
+class PostCorrespondenceState(object):
   def __init__(self, seqs=("", ""), history=None):
     self.seqs = seqs
     self.history = history or []
@@ -47,7 +47,7 @@ class PostCorrespondenceState:
     return "{{{}, {}}}".format(self.seqs, self.history)
 
 
-class DominoSpace:
+class DominoSpace(object):
   '''
   The class DominoSpace contains
     fields:
