@@ -144,6 +144,7 @@ def LoadFile(fname=None):
   dominos = None
   if not os.path.isfile(fname):
     print('Cannot open file: {}.'.format(fname))
+    exit()
   else:
     try:
       with open(fname) as fin:
@@ -154,11 +155,13 @@ def LoadFile(fname=None):
           idx, str_top, str_bottom = line.strip('\n').split(' ')
           dominos.append(Domino(int(idx), (str_top, str_bottom)))
     except:
-      print(r'''Incompatible format! \n
+      print(r'''Incompatible format!
+    
     Please follow strictly the sample from the course webpage.
     First line: "\d+" marking max size of queue
     Second line: "\d+" marking the max total number of states
     Remaining lines: "\d+ \w+ \w+" marking the Dominos' index and strings''')
+      exit()
 
   return max_queue_size, max_states_num, dominos
 
