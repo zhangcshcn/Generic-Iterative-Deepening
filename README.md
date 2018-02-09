@@ -27,17 +27,18 @@ Remaining lines: Dominos (regex: "[\d+ \w+ \w+\n]+")
 - argparse
 
 #### Running the program
-```python
-python dominos.py [-t] FILE  
+```
+$ python dominos.py [-t] FILE  
 
 positional arguments:  
-  FILE           Input file name.  
+  FILE           input file name.  
 optional arguments:  
-  -t, --track    track the state changes towards the solution.  
+  -v, --verbose    print sequence of states generated in searching for the solution 
 ```
 
 #### Output   
 Print the solution to the termial.  
+
 If a solution is found, the sequence of dominos will be printed. 
 If '-v' is set, the sequence of states generated in searching for 
 the solution will also be printed.  

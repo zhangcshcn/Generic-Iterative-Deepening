@@ -3,6 +3,10 @@
 from __future__ import print_function
 import logging
 
+ERR_MESSAGE = {
+    0: "Solution found!",
+    1: "NO SOLUTION for the problem.", 
+    2: "No solution found WITHIN GIVEN CONSTRAINS."}
 class BFSnIterativeDeepening():
   '''
   This is a generic class for BFS with Iterative Deepening.

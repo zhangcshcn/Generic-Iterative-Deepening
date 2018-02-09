@@ -7,19 +7,19 @@ import os
 import logging
 import argparse
 
-from iterative_deepening import BFSnIterativeDeepening
+from iterative_deepening import BFSnIterativeDeepening, ERR_MESSAGE
 
 parser = argparse.ArgumentParser(
     description=("Using BFS with Iterative Deepening to solve "
                  "the post correspondence problem of dominos."))
 parser.add_argument("FILE", type=str, help="Input file name.")
+parser.add_argument("-d","--debug", action="store_true",
+    help="show all the debug logging infomation.")
 parser.add_argument("-v","--verbose", action="store_true",
-    help="show all the logging infomation.")
-parser.add_argument("-t","--track", action="store_true",
     help="track the state changes towards the solution.")
 
 args = parser.parse_args()
-if args.verbose:
+if args.debug:
   logging.getLogger().setLevel(logging.INFO)
 
 
@@ -39,6 +39,8 @@ class PostCorrespondenceState:
   
   def IsValid(self):
     return True if self.history else False
+  def __str__(self):
+    return "-".join(["D%d"%d for d in self.history])
 
   def __repr__(self):
     return "{{{}, {}}}".format(self.seqs, self.history)
@@ -101,8 +103,27 @@ class DominoSpace:
     else:
       return False
 
+  def Replay(self, state):
+    final = state.history
+    start = self.start_point.history
+    final = final[len(start):]
+    
+    index_to_domino = {d.index: d for d in self.dominos}
+    states = [self.start_point]
+    for s in final:
+      states.append(self._CatDomino(states[-1], index_to_domino[s]))
+    return states
+
 
 def LoadFile(fname=None):
+  '''
+  Args:
+    fname: The file name.
+  Returns:
+    max_queue_size: The maximum queue size for BFS.
+    max_states_num: The maximum number of states to explore.
+    dominos: A list of Domino object.
+  '''
   max_queue_size = None
   max_states_num = None
   dominos = None
@@ -117,7 +138,7 @@ def LoadFile(fname=None):
           dominos = []
           for line in f:
             idx, str_top, str_bottom = line.strip('\n').split(' ')
-            dominos.append(Domino(idx, (str_top, str_bottom)))
+            dominos.append(Domino(int(idx), (str_top, str_bottom)))
     except: 
       print('''Incompatible format! \n
     Please follow strictly the sample from the course webpage.
@@ -135,15 +156,26 @@ def main():
   fname = sys.argv[1]
   max_queue_size, max_states_num, dominos = LoadFile(fname)
   dominos = DominoSpace(dominos=dominos)
-  search_engine = BFSnIterativeDeepening(
+  solver = BFSnIterativeDeepening(
       dominos,
       max_queue_size=max_queue_size,
       max_states_num=max_states_num)
-  v, err = search_engine.Search()
-  if v:
-    logging.info("%r, %r"%(v.seqs, v.history))
+  sol, err = solver.Search()
+  print(ERR_MESSAGE[err])
+  if sol:
+    print("Solution:\n\t%s"%sol)
+    if args.verbose:
+      print("Path towards solution state:\n\t", end="")
+      path_to_sol = dominos.Replay(sol)
+      print(" => ".join(["{}".format(s.seqs) for s in path_to_sol]))
+
+      all_states = solver.seen_bfs_states.keys() + solver.seen_dfs_states.keys()
+      print("All %d states explored:\n\t"%len(all_states), end="")
+      print(" ".join(["{}".format(s) for s in all_states]))
+
   else:
-    logging.info("%r, %r"%(v, err))
+    logging.info("%r, %r"%(sol, err))
+
 
 if __name__ == '__main__':
   main()
