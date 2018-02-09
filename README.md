@@ -1,5 +1,5 @@
 ## NYU-AI-Spring 2018
-Auther: Chen Zhang (cz1389@)  
+Author: Chen Zhang (cz1389@)  
 Email: chen.zhang@nyu.edu  
 
 ### Programming Assignment 1
