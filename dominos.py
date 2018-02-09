@@ -1,13 +1,36 @@
 #! /usr/bin/python2
 # -*- coding: utf-8 -*-
+
 from __future__ import print_function
 import sys
 import os
+import logging
+import argparse
+
+from iterative_deepening import BFSnIterativeDeepening
+
+parser = argparse.ArgumentParser(
+    description=("Using BFS with Iterative Deepening to solve "
+                 "the post correspondence problem of dominos."))
+parser.add_argument("FILE", type=str, help="Input file name.")
+parser.add_argument("-v","--verbose", action="store_true",
+    help="show all the logging infomation.")
+parser.add_argument("-t","--track", action="store_true",
+    help="track the state changes towards the solution.")
+
+args = parser.parse_args()
+if args.verbose:
+  logging.getLogger().setLevel(logging.INFO)
+
 
 class Domino:
   def __init__(self, index, content):
     self.index = index
     self.content = content
+  
+  def __repr__(self):
+    return "{{{}: {}}}".format(self.index, self.content)
+
 
 class PostCorrespondenceState:
   def __init__(self, seqs=("", ""), history=None):
@@ -16,7 +39,10 @@ class PostCorrespondenceState:
   
   def IsValid(self):
     return True if self.history else False
-    
+
+  def __repr__(self):
+    return "{{{}, {}}}".format(self.seqs, self.history)
+
 
 class DominoSpace:
   '''
@@ -26,7 +52,7 @@ class DominoSpace:
         Initialized to seqs=("", ""), history=[].
       dominos: a list of Domino.
     methods:
-      Neighbors(state): generate a list of neighboring STATEs of the 
+      Neighbors(state): generate a list of neighboring states of the 
         given state by trying concatenating dominos.
       Assert(state): determine if the STATE meets the goal.
  '''
@@ -44,7 +70,7 @@ class DominoSpace:
       domino: (int, (str_top, str_bottom)) to concatenate to the state.
     Returns:
       If a valid state is produced, return the state.
-      Otherwise return None.
+      Otherwise return an invalid state.
     '''
     state_top, state_bottom = state.seqs
     domino_top, domino_bottom = domino.content
@@ -62,8 +88,7 @@ class DominoSpace:
     '''
     Generates a sequence of valid neighbors of a given state.
     Args:
-      state: (str_top, str_bottom). 
-        A valid state should have at least one empty string ("").
+      state: A valid state should having at least one empty string ("") in seqs.
     Returns:
       A list of the valid neighbor states.
     '''
@@ -75,73 +100,6 @@ class DominoSpace:
       return state.seqs[0] == state.seqs[1]
     else:
       return False
-
-
-class IterativeDeepening():
-  def __init__(self, max_queue_size=100, max_states_num=1000):
-    self.bfs_queue = []
-    self.dfs_stack = []
-    self.seen_bfs_states = set()
-    self.seen_dfs_states = set()
-    self.num_states_seen = 0
-    self.max_queue_size = min(max_queue_size, 2**20)
-    self.max_states_num = max_states_num
-  
-  def _bfs(self, searchable):
-    # Initialize.
-    self.bfs_queue.append(searchable.start_point)
-    while (
-        self.num_states_seen < self.max_states_num and 
-        self.bfs_queue):
-      u = self.bfs_queue.pop(0)
-      # Get unseen neighboring states.
-      neighbors = [
-          n for n in searchable.Neighbors(u) 
-          if n.seqs not in self.seen_bfs_states]
-      # If max_queue_size is reached, stop bfs. 
-      # Insert u back to the front of the queue.
-      if len(neighbors) + len(self.bfs_queue) > self.max_queue_size:
-        self.bfs_queue.insert(0, u)
-        return None, 2
-      # Appending neighbors to the queue.
-      for v in neighbors:
-        self.num_states_seen += 1
-        if self.num_states_seen > self.max_states_num:
-          # No solution was found within the limits of search.
-          return None, 2
-        
-        self.seen_bfs_states.add(v.seqs)
-        
-        if searchable.Assert(v):
-          # Solution found.
-          return v, 0
-        
-        self.bfs_queue.append(v)
-
-    if self.bfs_queue:
-      return None, 2
-    else:
-      return None, 1
-              
-  
-  def _dfs(self, depth=1):
-    pass
-
-  def Search(self, searchable):
-    '''
-    Args:
-      searchable: an class object with 
-        1. a start_point field as the start point of searching,
-        2. a Neighbors(state) method to generate neighboring states, and
-        3. a Assert(state) method to evaluate the state.
-    Returns:
-      (STATE, exit code)
-      0 solution found
-      1 no solution exists.
-      2 no solution was found within the limits of search.
-    '''
-    v, err = self._bfs(searchable)
-    return v, err
 
 
 def LoadFile(fname=None):
@@ -165,27 +123,27 @@ def LoadFile(fname=None):
     Please follow strictly the sample from the course webpage.
     First line: "\d+" marking max size of queue 
     Second line: "\d+" marking the max total number of states 
-    Remaining lines: "\d+ \c+ \c+" marking the Dominos' index and strings''')
+    Remaining lines: "\d+ \w+ \w+" marking the Dominos' index and strings''')
 
   return max_queue_size, max_states_num, dominos
 
 
 def main():
   if len(sys.argv) == 1:
-    print('The program needs an argument indicating the input file!')
+    ('The program needs an argument indicating the input file!')
     return 
   fname = sys.argv[1]
   max_queue_size, max_states_num, dominos = LoadFile(fname)
   dominos = DominoSpace(dominos=dominos)
-  search_engine = IterativeDeepening(
+  search_engine = BFSnIterativeDeepening(
+      dominos,
       max_queue_size=max_queue_size,
       max_states_num=max_states_num)
-  v, err = search_engine.Search(dominos)
+  v, err = search_engine.Search()
   if v:
-    print (v.seqs, v.history)
+    logging.info("%r, %r"%(v.seqs, v.history))
   else:
-    print (v, err)
+    logging.info("%r, %r"%(v, err))
 
 if __name__ == '__main__':
   main()
-

@@ -1,5 +1,5 @@
 import unittest
-from DominosID import Domino, PostCorrespondenceState, DominoSpace
+from dominos import Domino, PostCorrespondenceState, DominoSpace
 
 class PostCorrespondenceStateTest(unittest.TestCase):
   def testIsInvalid(self):
