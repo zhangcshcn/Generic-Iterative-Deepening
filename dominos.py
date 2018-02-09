@@ -13,10 +13,10 @@ parser = argparse.ArgumentParser(
     description=("Using BFS with Iterative Deepening to solve "
                  "the post correspondence problem of dominos."))
 parser.add_argument("FILE", type=str, help="Input file name.")
-parser.add_argument("-d","--debug", action="store_true",
-    help="show all the debug logging infomation.")
-parser.add_argument("-v","--verbose", action="store_true",
-    help="track the state changes towards the solution.")
+parser.add_argument("-d", "--debug", action="store_true",
+                    help="show all the debug logging infomation.")
+parser.add_argument("-v", "--verbose", action="store_true",
+                    help="track the state changes towards the solution.")
 
 args = parser.parse_args()
 if args.debug:
@@ -27,7 +27,7 @@ class Domino:
   def __init__(self, index, content):
     self.index = index
     self.content = content
-  
+
   def __repr__(self):
     return "{{{}: {}}}".format(self.index, self.content)
 
@@ -36,9 +36,10 @@ class PostCorrespondenceState:
   def __init__(self, seqs=("", ""), history=None):
     self.seqs = seqs
     self.history = history or []
-  
+
   def IsValid(self):
     return True if self.history else False
+
   def __str__(self):
     return "-".join(["D%d"%d for d in self.history])
 
@@ -48,20 +49,20 @@ class PostCorrespondenceState:
 
 class DominoSpace:
   '''
-  The class DominoSpace contains 
+  The class DominoSpace contains
     fields:
-      start_point: a PostCorrespondenceState to start with. 
+      start_point: a PostCorrespondenceState to start with.
         Initialized to seqs=("", ""), history=[].
       dominos: a list of Domino.
     methods:
-      Neighbors(state): generate a list of neighboring states of the 
+      Neighbors(state): generate a list of neighboring states of the
         given state by trying concatenating dominos.
       Assert(state): determine if the STATE meets the goal.
  '''
-  def __init__(self, dominos, 
-               start_point=PostCorrespondenceState(("", ""),[])):
+  def __init__(self, dominos,
+               start_point=PostCorrespondenceState(("", ""), [])):
     self.start_point = start_point
-    self.dominos = sorted(dominos, key=lambda d:d.index)
+    self.dominos = sorted(dominos, key=lambda d: d.index)
 
   def _CatDomino(self, state, domino):
     '''
@@ -89,6 +90,7 @@ class DominoSpace:
   def Neighbors(self, state):
     '''
     Generates a sequence of valid neighbors of a given state.
+
     Args:
       state: A valid state should having at least one empty string ("") in seqs.
     Returns:
@@ -96,22 +98,35 @@ class DominoSpace:
     '''
     neighbors = [self._CatDomino(state, d) for d in self.dominos]
     return [n for n in neighbors if n.IsValid()]
-  
+
   def Assert(self, state):
+    '''
+    Assert if the given state meets the goal.
+    '''
     if state.IsValid():
       return state.seqs[0] == state.seqs[1]
     else:
       return False
 
   def Replay(self, state):
+    '''
+    Return the sequence of states towards the finding of the given state
+    in chronological order.
+
+    Args:
+      state: The state object to whose history is to be replayed.
+    Return:
+      A list of states towards the finding of the given state
+    organized in chronological order.
+    '''
     final = state.history
     start = self.start_point.history
     final = final[len(start):]
-    
+
     index_to_domino = {d.index: d for d in self.dominos}
     states = [self.start_point]
-    for s in final:
-      states.append(self._CatDomino(states[-1], index_to_domino[s]))
+    for state in final:
+      states.append(self._CatDomino(states[-1], index_to_domino[state]))
     return states
 
 
@@ -131,19 +146,18 @@ def LoadFile(fname=None):
     print('Cannot open file: {}.'.format(fname))
   else:
     try:
-      with open(fname) as f:
-        
-          max_queue_size = int(f.next())
-          max_states_num = int(f.next())
-          dominos = []
-          for line in f:
-            idx, str_top, str_bottom = line.strip('\n').split(' ')
-            dominos.append(Domino(int(idx), (str_top, str_bottom)))
-    except: 
-      print('''Incompatible format! \n
+      with open(fname) as fin:
+        max_queue_size = int(fin.next())
+        max_states_num = int(fin.next())
+        dominos = []
+        for line in fin:
+          idx, str_top, str_bottom = line.strip('\n').split(' ')
+          dominos.append(Domino(int(idx), (str_top, str_bottom)))
+    except:
+      print(r'''Incompatible format! \n
     Please follow strictly the sample from the course webpage.
-    First line: "\d+" marking max size of queue 
-    Second line: "\d+" marking the max total number of states 
+    First line: "\d+" marking max size of queue
+    Second line: "\d+" marking the max total number of states
     Remaining lines: "\d+ \w+ \w+" marking the Dominos' index and strings''')
 
   return max_queue_size, max_states_num, dominos
@@ -151,8 +165,8 @@ def LoadFile(fname=None):
 
 def main():
   if len(sys.argv) == 1:
-    ('The program needs an argument indicating the input file!')
-    return 
+    print('The program needs an argument indicating the input file!')
+    return
   fname = sys.argv[1]
   max_queue_size, max_states_num, dominos = LoadFile(fname)
   dominos = DominoSpace(dominos=dominos)
@@ -174,7 +188,7 @@ def main():
       print(" ".join(["{}".format(s) for s in all_states]))
 
   else:
-    logging.info("%r, %r"%(sol, err))
+    logging.info("%r, %r", sol, err)
 
 
 if __name__ == '__main__':
