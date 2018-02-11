@@ -32,6 +32,7 @@ class TreeSpace(Searchable):
   def Assert(self, state):
     return state is not None and state.state.val == self.target
 
+
 class TreeTest(unittest.TestCase):
   def setUp(self):
     self.root = TreeNode(0)
@@ -136,7 +137,6 @@ class TreeTest(unittest.TestCase):
     self.assertEqual(None, sol)
     self.assertEqual(1, err)
     self.assertEqual(6, solver.num_states_seen)
-
 
   def testDFSErr2(self):
     target = 10

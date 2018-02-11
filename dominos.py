@@ -175,6 +175,7 @@ def main():
       max_queue_size=max_queue_size,
       max_states_num=max_states_num)
   sol, err = solver.Search()
+  logging.info("%r, %r", sol, err)
   print(ERR_MESSAGE[err])
   if sol:
     print("Solution:\n\t%s"%sol)
@@ -186,9 +187,6 @@ def main():
     all_states = solver.seen_bfs_states.keys() + solver.seen_dfs_states.keys()
     print("All %d states explored:\n\t"%len(all_states), end="")
     print(" ".join(["{}".format(s) for s in all_states]))
-
-  else:
-    logging.info("%r, %r", sol, err)
 
 
 if __name__ == '__main__':
