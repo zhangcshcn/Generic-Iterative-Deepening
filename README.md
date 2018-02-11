@@ -15,14 +15,12 @@ even though Python 2 does not have official support for that. The code is well-d
 with docstring. It is not going to be hard to figure out the definition
 and implementation details of the phantom abstract classes.  
 
-- The [*iterative_deepening.py*](iterative_deepening.py) contains a generic *BFSwIterativeDeepening*
-class good for **searchable objects**.  
-- In [*dominos.py*](dominos.py), a **searchable class** (*DominoSpace*) is implemented
-along with its dependents, an **element class** (*Domino*) and **state class** (*PostCorrespondenceState*).  
-- [*dominos_test.py*](dominos_test.py) contains unittest for methods in [*dominos.py*](dominos.py).  
+- [*iterative_deepening.py*](iterative_deepening.py) contains a generic **IterativeDeepening**
+class good for **Searchable objects**. The abstract classes of **Searchable** and **State** are also implemented.  
+- In [*dominos.py*](dominos.py), a **DominoSpace** (subclass of **Searchable**) and **PostCorrespondenceState** (subclass of **State**) are implemented, along with class **Domino**. The code to solve this particular problem is also included.  
 
 #### Input format  
-Follow strictly the sample format in the [Coding requirements](https://cs.nyu.edu/courses/spring18/CSCI-GA.2560-001/prog1.html).  
+Follow strictly the sample format from the [coding requirements](https://cs.nyu.edu/courses/spring18/CSCI-GA.2560-001/prog1.html).  
 
 - First line: max size of queue (regex: "\d+\n")  
 - Second line: Max total number of states (regex: "\d+\n")  
@@ -34,7 +32,7 @@ Follow strictly the sample format in the [Coding requirements](https://cs.nyu.ed
 
 #### Running the program
 ```
-$ python dominos.py [-t] FILE  
+$ python dominos.py [-v] FILE  
 
 positional arguments:  
   FILE             input file name.  
@@ -46,9 +44,10 @@ optional arguments:
 The solution will be printed to the termial.  
 
 If a solution is found, the sequence of dominos will be printed. 
-If '-v' is set, the sequence of states generated in searching for 
-the solution will also be printed.  
 
 If no solution is found, the program will indicate if there is 
 no solution to the problem, or that the program failed to find
 a solution under the given constraint.
+
+If '-v' is set, the sequence of states generated in searching for 
+the solution will also be printed.  

@@ -2,25 +2,11 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function
-import sys
 import os
 import logging
 import argparse
 
-from iterative_deepening import BFSnIterativeDeepening, ERR_MESSAGE
-
-parser = argparse.ArgumentParser(
-    description=("Using BFS with Iterative Deepening to solve "
-                 "the post correspondence problem of dominos."))
-parser.add_argument("FILE", type=str, help="Input file name.")
-parser.add_argument("-d", "--debug", action="store_true",
-                    help="show all the debug logging infomation.")
-parser.add_argument("-v", "--verbose", action="store_true",
-                    help="track the state changes towards the solution.")
-
-args = parser.parse_args()
-if args.debug:
-  logging.getLogger().setLevel(logging.INFO)
+from iterative_deepening import IterativeDeepening, ERR_MESSAGE, State, Searchable
 
 
 class Domino(object):
@@ -32,10 +18,9 @@ class Domino(object):
     return "{{{}: {}}}".format(self.index, self.content)
 
 
-class PostCorrespondenceState(object):
-  def __init__(self, seqs=("", ""), history=None):
-    self.seqs = seqs
-    self.history = history or []
+class PostCorrespondenceState(State):
+  def __init__(self, state=("", ""), history=None):
+    super(PostCorrespondenceState, self).__init__(state, history)
 
   def IsValid(self):
     return True if self.history else False
@@ -44,15 +29,15 @@ class PostCorrespondenceState(object):
     return "-".join(["D%d"%d for d in self.history])
 
   def __repr__(self):
-    return "{{{}, {}}}".format(self.seqs, self.history)
+    return "{{{}, {}}}".format(self.state, self.history)
 
 
-class DominoSpace(object):
+class DominoSpace(Searchable):
   '''
   The class DominoSpace contains
     fields:
       start_point: a PostCorrespondenceState to start with.
-        Initialized to seqs=("", ""), history=[].
+        Initialized to state=("", ""), history=[].
       dominos: a list of Domino.
     methods:
       Neighbors(state): generate a list of neighboring states of the
@@ -61,10 +46,12 @@ class DominoSpace(object):
  '''
   def __init__(self, dominos,
                start_point=PostCorrespondenceState(("", ""), [])):
-    self.start_point = start_point
+    super(DominoSpace, self).__init__(start_point)
+    # self.start_point = start_point
     self.dominos = sorted(dominos, key=lambda d: d.index)
 
-  def _CatDomino(self, state, domino):
+  @staticmethod
+  def _CatDomino(state, domino):
     '''
     Concatenate a domino to a state and determine if it is valid.
     Args:
@@ -75,7 +62,7 @@ class DominoSpace(object):
       If a valid state is produced, return the state.
       Otherwise return an invalid state.
     '''
-    state_top, state_bottom = state.seqs
+    state_top, state_bottom = state.state
     domino_top, domino_bottom = domino.content
     new_top, new_bottom = state_top + domino_top, state_bottom + domino_bottom
     max_len_prefix = min(len(new_top), len(new_bottom))
@@ -92,7 +79,7 @@ class DominoSpace(object):
     Generates a sequence of valid neighbors of a given state.
 
     Args:
-      state: A valid state should having at least one empty string ("") in seqs.
+      state: A valid state should having at least one empty string ("") in state.
     Returns:
       A list of the valid neighbor states.
     '''
@@ -104,7 +91,7 @@ class DominoSpace(object):
     Assert if the given state meets the goal.
     '''
     if state.IsValid():
-      return state.seqs[0] == state.seqs[1]
+      return state.state[0] == state.state[1]
     else:
       return False
 
@@ -167,28 +154,38 @@ def LoadFile(fname=None):
 
 
 def main():
-  if len(sys.argv) == 1:
-    print('The program needs an argument indicating the input file!')
-    return
-  fname = sys.argv[1]
+  parser = argparse.ArgumentParser(
+      description=("Using BFS with Iterative Deepening to solve "
+                   "the post correspondence problem of dominos."))
+  parser.add_argument("FILE", type=str, help="input file name.")
+  parser.add_argument("-d", "--debug", action="store_true",
+                      help="show all the debug logging infomation.")
+  parser.add_argument("-v", "--verbose", action="store_true",
+                      help="track the state changes towards the solution.")
+  args = parser.parse_args()
+  fname = args.FILE
+  if args.debug:
+    logging.getLogger().setLevel(logging.INFO)
+
   max_queue_size, max_states_num, dominos = LoadFile(fname)
-  dominos = DominoSpace(dominos=dominos)
-  solver = BFSnIterativeDeepening(
-      dominos,
+
+  domino_space = DominoSpace(dominos=dominos)
+  solver = IterativeDeepening(
+      domino_space,
       max_queue_size=max_queue_size,
       max_states_num=max_states_num)
   sol, err = solver.Search()
   print(ERR_MESSAGE[err])
   if sol:
     print("Solution:\n\t%s"%sol)
-    if args.verbose:
-      print("Path towards solution state:\n\t", end="")
-      path_to_sol = dominos.Replay(sol)
-      print(" => ".join(["{}".format(s.seqs) for s in path_to_sol]))
-
-      all_states = solver.seen_bfs_states.keys() + solver.seen_dfs_states.keys()
-      print("All %d states explored:\n\t"%len(all_states), end="")
-      print(" ".join(["{}".format(s) for s in all_states]))
+  if args.verbose and sol:
+    print("Path towards solution state:\n\t", end="")
+    path_to_sol = domino_space.Replay(sol)
+    print(" => ".join(["{}".format(s.state) for s in path_to_sol]))
+  if args.verbose:
+    all_states = solver.seen_bfs_states.keys() + solver.seen_dfs_states.keys()
+    print("All %d states explored:\n\t"%len(all_states), end="")
+    print(" ".join(["{}".format(s) for s in all_states]))
 
   else:
     logging.info("%r, %r", sol, err)

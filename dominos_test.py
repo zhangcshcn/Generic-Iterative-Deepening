@@ -1,3 +1,5 @@
+#! /usr/bin/python2
+# -*- coding: utf-8 -*-
 import unittest
 from dominos import Domino, PostCorrespondenceState, DominoSpace
 
@@ -28,7 +30,7 @@ class PostCorrespondenceStateTest(unittest.TestCase):
 
 class DominoSpaceTest(unittest.TestCase):
   def setUp(self):
-    self.Dominos = DominoSpace(
+    self.domino_space = DominoSpace(
         dominos=[
             Domino(1, ("c", "cca")), Domino(2, ("ac", "ba")),
             Domino(3, ("bb", "b")), Domino(4, ("ac", "cb")),
@@ -75,9 +77,9 @@ class DominoSpaceTest(unittest.TestCase):
             PostCorrespondenceState()],
     ]
     for idx, test_dominos in enumerate(dominos):
-      test_result = map(self.Dominos._CatDomino, states, test_dominos)
+      test_result = map(DominoSpace._CatDomino, states, test_dominos)
       self.assertSequenceEqual(
-          [x.seqs for x in expected[idx]], [x.seqs for x in test_result])
+          [x.state for x in expected[idx]], [x.state for x in test_result])
       self.assertSequenceEqual(
           [x.history for x in expected[idx]], [x.history for x in test_result])
 
@@ -101,9 +103,9 @@ class DominoSpaceTest(unittest.TestCase):
         [PostCorrespondenceState(("", ""), [3, 2, 1, 4, 3])],
     ]
     for idx, state in enumerate(states):
-      test_result = self.Dominos.Neighbors(state)
+      test_result = self.domino_space.Neighbors(state)
       self.assertSequenceEqual(
-          [x.seqs for x in expected[idx]], [x.seqs for x in test_result])
+          [x.state for x in expected[idx]], [x.state for x in test_result])
       self.assertSequenceEqual(
           [x.history for x in expected[idx]], [x.history for x in test_result])
 
@@ -120,16 +122,16 @@ class DominoSpaceTest(unittest.TestCase):
     expected = [
         True, False, False, True, False, False, False
     ]
-    test_result = [self.Dominos.Assert(s) for s in states]
+    test_result = [self.domino_space.Assert(s) for s in states]
     self.assertSequenceEqual(expected, test_result)
 
   def testDominoFunctional(self):
     expected = [
         PostCorrespondenceState(("", "ca"), [1]),
         PostCorrespondenceState(("b", ""), [3])]
-    test_result = self.Dominos.Neighbors(self.Dominos.start_point)
+    test_result = self.domino_space.Neighbors(self.domino_space.start_point)
     self.assertSequenceEqual(
-        [x.seqs for x in expected], [x.seqs for x in test_result])
+        [x.state for x in expected], [x.state for x in test_result])
     self.assertSequenceEqual(
         [x.history for x in expected], [x.history for x in test_result])
 
