@@ -1,5 +1,16 @@
 #! /usr/bin/python2
 # -*- coding: utf-8 -*-
+'''
+This module implements a generic framework for Iterative Deepening.
+The class BFSnIterativeDeepening is implemented. The maximum number of bfs queue,
+and the maximum number of states to explore are freely customizable. The generic
+and end-to-end method of Search is provided. The components , namely, BFS, DFS,
+and IterativeDeepening methods with customizable seed(s) also provide.
+
+In accord with the generic search framework, the abstract classes as wrappers of
+customized elements, states, and search space are also provided. It is trivil to
+adjust customized search problem in to the framework provided here.
+'''
 
 from __future__ import print_function
 import logging
@@ -11,22 +22,19 @@ ERR_MESSAGE = {
 }
 
 
-class Element(object):
-  def __init__(self, index, content):
-    self.index = index
-    self.content = content
-
-
 class State(object):
-  def __init__(self, state=("", ""), history=None):
+  '''
+  Abstract class for the states and this history in the search space.
+  '''
+  def __init__(self, state=None, history=None):
     self.state = state
     self.history = history
 
-  def IsValid(self):
-    raise NotImplementedError()
-
 
 class Searchable(object):
+  '''
+  Abstract class for the search space.
+  '''
   def __init__(self, start_point=None):
     self.start_point = start_point
 
@@ -79,7 +87,7 @@ class BFSnIterativeDeepening(object):
         neighbor for neighbor in self.searchable.Neighbors(state)
         if neighbor.state not in self.seen_bfs_states]
 
-  def BFS(self):
+  def BFS(self, seed=None, max_queue_size=None):
     '''
     This function conducts BFS from the self.searchable.start_point
     with a constraint in the maximum size of the queue and the maximum
@@ -93,7 +101,9 @@ class BFSnIterativeDeepening(object):
         2 - solution not found within the maximum number of states.
     '''
     # Initialize.
-    self.bfs_queue.append(self.searchable.start_point)
+    max_queue_size = None or self.max_queue_size
+    seed_state = seed or self.searchable.start_point
+    self.bfs_queue.append(seed_state)
     while (
         self.num_states_seen < self.max_states_num and
         self.bfs_queue):
@@ -103,14 +113,14 @@ class BFSnIterativeDeepening(object):
       neighbors = self._GetNewNeighbors(node)
       # If max_queue_size is reached, stop bfs.
       # Insert u back to the front of the queue.
-      if len(neighbors) + len(self.bfs_queue) > self.max_queue_size:
+      if len(neighbors) + len(self.bfs_queue) > max_queue_size:
         self.bfs_queue.insert(0, node)
         return None, 2
       for neighbor in neighbors:
-        self.num_states_seen += 1
-        if self.num_states_seen > self.max_states_num:
+        if self.num_states_seen >= self.max_states_num:
           # No solution was found within the limits of search.
           return None, 2
+        self.num_states_seen += 1
         self.seen_bfs_states[neighbor.state] = neighbor.history
         if self.searchable.Assert(neighbor):
           # Solution found.
@@ -121,7 +131,7 @@ class BFSnIterativeDeepening(object):
     else:
       return None, 1
 
-  def DFS(self, root, max_depth):
+  def DFS(self, root, max_depth=1000):
     '''
     Args:
       root: The root of the DFS.
@@ -172,7 +182,7 @@ class BFSnIterativeDeepening(object):
       dfs_stack.append((node, depth+1, neighbors))
     return None, 1
 
-  def IterativeDeepening(self):
+  def IterativeDeepening(self, seeds=None):
     '''
     This function repeatively call DFS (with constraint on depth and
     maximum number of states), iterating over every element in
@@ -189,17 +199,19 @@ class BFSnIterativeDeepening(object):
     '''
     iterate_depth = 0
     num_states_before = self.num_states_seen
-    while self.num_states_seen < self.max_states_num:
+    seed_list = seeds or self.bfs_queue
+    while True:
       iterate_depth += 1
       logging.info("Iteration deptp = %d", iterate_depth)
-      for root in self.bfs_queue:
-        sol, err = self.DFS(root, iterate_depth)
+      for seed in seed_list:
+        sol, err = self.DFS(seed, iterate_depth)
         logging.info("dfs return: %r, %r", sol, err)
         logging.info("States: %r/%r", self.num_states_seen, self.max_states_num)
-        if err != 0:
-          continue
-        else:
+        if sol:
           return sol, err
+        if self.num_states_seen >= self.max_states_num:
+          return None, 2
+
       if num_states_before == self.num_states_seen:
         # If no new states is seen in an iteration, no more will show up.
         # There is therefore no solution.
@@ -208,7 +220,6 @@ class BFSnIterativeDeepening(object):
         num_states_before = self.num_states_seen
 
     return None, 2
-
 
   def Search(self):
     '''

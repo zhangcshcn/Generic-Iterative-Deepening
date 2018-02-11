@@ -2,17 +2,17 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function
-import sys
 import os
 import logging
 import argparse
 
-from iterative_deepening import BFSnIterativeDeepening, ERR_MESSAGE, Element, State, Searchable
+from iterative_deepening import BFSnIterativeDeepening, ERR_MESSAGE, State, Searchable
 
 
-class Domino(Element):
+class Domino(object):
   def __init__(self, index, content):
-    super(Domino, self).__init__(index, content)
+    self.index = index
+    self.content = content
 
   def __repr__(self):
     return "{{{}: {}}}".format(self.index, self.content)
@@ -50,7 +50,8 @@ class DominoSpace(Searchable):
     # self.start_point = start_point
     self.dominos = sorted(dominos, key=lambda d: d.index)
 
-  def _CatDomino(self, state, domino):
+  @staticmethod
+  def _CatDomino(state, domino):
     '''
     Concatenate a domino to a state and determine if it is valid.
     Args:
@@ -155,26 +156,22 @@ def LoadFile(fname=None):
 def main():
   parser = argparse.ArgumentParser(
       description=("Using BFS with Iterative Deepening to solve "
-                  "the post correspondence problem of dominos."))
-  parser.add_argument("FILE", type=str, help="Input file name.")
+                   "the post correspondence problem of dominos."))
+  parser.add_argument("FILE", type=str, help="input file name.")
   parser.add_argument("-d", "--debug", action="store_true",
                       help="show all the debug logging infomation.")
   parser.add_argument("-v", "--verbose", action="store_true",
                       help="track the state changes towards the solution.")
-
   args = parser.parse_args()
+  fname = args.FILE
   if args.debug:
     logging.getLogger().setLevel(logging.INFO)
 
-
-  if len(sys.argv) == 1:
-    print('The program needs an argument indicating the input file!')
-    return
-  fname = sys.argv[1]
   max_queue_size, max_states_num, dominos = LoadFile(fname)
-  dominos = DominoSpace(dominos=dominos)
+
+  domino_space = DominoSpace(dominos=dominos)
   solver = BFSnIterativeDeepening(
-      dominos,
+      domino_space,
       max_queue_size=max_queue_size,
       max_states_num=max_states_num)
   sol, err = solver.Search()
@@ -183,7 +180,7 @@ def main():
     print("Solution:\n\t%s"%sol)
   if args.verbose and sol:
     print("Path towards solution state:\n\t", end="")
-    path_to_sol = dominos.Replay(sol)
+    path_to_sol = domino_space.Replay(sol)
     print(" => ".join(["{}".format(s.state) for s in path_to_sol]))
   if args.verbose:
     all_states = solver.seen_bfs_states.keys() + solver.seen_dfs_states.keys()
