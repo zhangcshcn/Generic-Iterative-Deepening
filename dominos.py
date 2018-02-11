@@ -6,7 +6,7 @@ import os
 import logging
 import argparse
 
-from iterative_deepening import BFSnIterativeDeepening, ERR_MESSAGE, State, Searchable
+from iterative_deepening import IterativeDeepening, ERR_MESSAGE, State, Searchable
 
 
 class Domino(object):
@@ -170,7 +170,7 @@ def main():
   max_queue_size, max_states_num, dominos = LoadFile(fname)
 
   domino_space = DominoSpace(dominos=dominos)
-  solver = BFSnIterativeDeepening(
+  solver = IterativeDeepening(
       domino_space,
       max_queue_size=max_queue_size,
       max_states_num=max_states_num)

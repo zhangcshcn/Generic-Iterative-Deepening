@@ -1,7 +1,7 @@
 #! /usr/bin/python2
 # -*- coding: utf-8 -*-
 import unittest
-from iterative_deepening import State, Searchable, BFSnIterativeDeepening
+from iterative_deepening import State, Searchable, IterativeDeepening
 
 
 class TreeNode(object):
@@ -45,7 +45,7 @@ class TreeTest(unittest.TestCase):
   def testBFSErr0(self):
     target = 10
     tree_space = TreeSpace(TreeState(self.root), target)
-    solver = BFSnIterativeDeepening(
+    solver = IterativeDeepening(
         tree_space,
         max_queue_size=8,
         max_states_num=16)
@@ -60,7 +60,7 @@ class TreeTest(unittest.TestCase):
   def testBFSErr1(self):
     target = 17
     tree_space = TreeSpace(TreeState(self.root), target)
-    solver = BFSnIterativeDeepening(
+    solver = IterativeDeepening(
         tree_space,
         max_queue_size=8,
         max_states_num=16)
@@ -73,7 +73,7 @@ class TreeTest(unittest.TestCase):
   def testBFSErr2A(self):
     target = 10
     tree_space = TreeSpace(TreeState(self.root), target)
-    solver = BFSnIterativeDeepening(
+    solver = IterativeDeepening(
         tree_space,
         max_queue_size=2,
         max_states_num=16)
@@ -86,7 +86,7 @@ class TreeTest(unittest.TestCase):
   def testBFSErr2B(self):
     target = 10
     tree_space = TreeSpace(TreeState(self.root), target)
-    solver = BFSnIterativeDeepening(
+    solver = IterativeDeepening(
         tree_space,
         max_queue_size=8,
         max_states_num=9)
@@ -101,7 +101,7 @@ class TreeTest(unittest.TestCase):
   def testDFSErr0A(self):
     target = 10
     tree_space = TreeSpace(TreeState(self.root), target)
-    solver = BFSnIterativeDeepening(
+    solver = IterativeDeepening(
         tree_space,
         max_queue_size=8,
         max_states_num=16)
@@ -113,7 +113,7 @@ class TreeTest(unittest.TestCase):
   def testDFSErr0B(self):
     target = 10
     tree_space = TreeSpace(TreeState(self.root), target)
-    solver = BFSnIterativeDeepening(tree_space)
+    solver = IterativeDeepening(tree_space)
     sol, err = solver.DFS(tree_space.start_point, 3)
     self.assertEqual(target, sol.state.val)
     self.assertEqual(0, err)
@@ -122,7 +122,7 @@ class TreeTest(unittest.TestCase):
   def testDFSErr1A(self):
     target = 17
     tree_space = TreeSpace(TreeState(self.root), target)
-    solver = BFSnIterativeDeepening(tree_space)
+    solver = IterativeDeepening(tree_space)
     sol, err = solver.DFS(tree_space.start_point)
     self.assertEqual(None, sol)
     self.assertEqual(1, err)
@@ -131,7 +131,7 @@ class TreeTest(unittest.TestCase):
   def testDFSErr1B(self):
     target = 10
     tree_space = TreeSpace(TreeState(self.root), target)
-    solver = BFSnIterativeDeepening(tree_space)
+    solver = IterativeDeepening(tree_space)
     sol, err = solver.DFS(tree_space.start_point, 2)
     self.assertEqual(None, sol)
     self.assertEqual(1, err)
@@ -141,7 +141,7 @@ class TreeTest(unittest.TestCase):
   def testDFSErr2(self):
     target = 10
     tree_space = TreeSpace(TreeState(self.root), target)
-    solver = BFSnIterativeDeepening(
+    solver = IterativeDeepening(
         tree_space, max_states_num=7)
     sol, err = solver.DFS(tree_space.start_point)
     self.assertEqual(None, sol)
@@ -151,7 +151,7 @@ class TreeTest(unittest.TestCase):
   def testIterativeDeepeningErr0(self):
     target = 10
     tree_space = TreeSpace(TreeState(self.root), target)
-    solver = BFSnIterativeDeepening(
+    solver = IterativeDeepening(
         tree_space, max_states_num=10)
     sol, err = solver.IterativeDeepening([tree_space.start_point])
     self.assertEqual(target, sol.state.val)
@@ -161,7 +161,7 @@ class TreeTest(unittest.TestCase):
   def testIterativeDeepeningErr1(self):
     target = 16
     tree_space = TreeSpace(TreeState(self.root), target)
-    solver = BFSnIterativeDeepening(
+    solver = IterativeDeepening(
         tree_space, max_states_num=16)
     sol, err = solver.IterativeDeepening([tree_space.start_point])
     self.assertEqual(None, sol)
@@ -171,7 +171,7 @@ class TreeTest(unittest.TestCase):
   def testIterativeDeepeningErr2(self):
     target = 10
     tree_space = TreeSpace(TreeState(self.root), target)
-    solver = BFSnIterativeDeepening(
+    solver = IterativeDeepening(
         tree_space, max_states_num=9)
     sol, err = solver.IterativeDeepening([tree_space.start_point])
     self.assertEqual(None, sol)
@@ -181,7 +181,7 @@ class TreeTest(unittest.TestCase):
   def testSearchErr0A(self):
     target = 10
     tree_space = TreeSpace(TreeState(self.root), target)
-    solver = BFSnIterativeDeepening(
+    solver = IterativeDeepening(
         tree_space,
         max_queue_size=3,
         max_states_num=16)
@@ -194,7 +194,7 @@ class TreeTest(unittest.TestCase):
   def testSearchErr0B(self):
     target = 10
     tree_space = TreeSpace(TreeState(self.root), target)
-    solver = BFSnIterativeDeepening(
+    solver = IterativeDeepening(
         tree_space,
         max_queue_size=8,
         max_states_num=16)
@@ -207,7 +207,7 @@ class TreeTest(unittest.TestCase):
   def testSearchErr0C(self):
     target = 10
     tree_space = TreeSpace(TreeState(self.root), target)
-    solver = BFSnIterativeDeepening(
+    solver = IterativeDeepening(
         tree_space,
         max_queue_size=0,
         max_states_num=16)
@@ -220,7 +220,7 @@ class TreeTest(unittest.TestCase):
   def testSearchErr0D(self):
     target = 10
     tree_space = TreeSpace(TreeState(self.root), target)
-    solver = BFSnIterativeDeepening(
+    solver = IterativeDeepening(
         tree_space,
         max_queue_size=1,
         max_states_num=16)
@@ -233,7 +233,7 @@ class TreeTest(unittest.TestCase):
   def testSearchErr1(self):
     target = 17
     tree_space = TreeSpace(TreeState(self.root), target)
-    solver = BFSnIterativeDeepening(
+    solver = IterativeDeepening(
         tree_space,
         max_queue_size=3,
         max_states_num=16)
@@ -246,7 +246,7 @@ class TreeTest(unittest.TestCase):
   def testSearchErr2(self):
     target = 17
     tree_space = TreeSpace(TreeState(self.root), target)
-    solver = BFSnIterativeDeepening(
+    solver = IterativeDeepening(
         tree_space,
         max_queue_size=3,
         max_states_num=9)

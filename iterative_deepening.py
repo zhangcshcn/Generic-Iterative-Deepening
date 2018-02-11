@@ -2,14 +2,16 @@
 # -*- coding: utf-8 -*-
 '''
 This module implements a generic framework for Iterative Deepening.
-The class BFSnIterativeDeepening is implemented. The maximum number of bfs queue,
-and the maximum number of states to explore are freely customizable. The generic
-and end-to-end method of Search is provided. The components , namely, BFS, DFS,
-and IterativeDeepening methods with customizable seed(s) also provide.
+The class IterativeDeepening is implemented. The maximum number
+of bfs queue, and the maximum number of states to explore are freely
+customizable. The generic and end-to-end method of Search is provided.
+The components, namely, BFS, DFS, and IterativeDeepening methods with
+customizable seed(s) also provide.
 
-In accord with the generic search framework, the abstract classes as wrappers of
-customized elements, states, and search space are also provided. It is trivil to
-adjust customized search problem in to the framework provided here.
+In accord with the generic search framework, the abstract classes as
+wrappers of customized states, and search space are also provided.
+It is trivil to adjust customized search problem in to the framework
+provided here.
 '''
 
 from __future__ import print_function
@@ -24,7 +26,7 @@ ERR_MESSAGE = {
 
 class State(object):
   '''
-  Abstract class for the states and this history in the search space.
+  Abstract class for the states and its history in the search space.
   '''
   def __init__(self, state=None, history=None):
     self.state = state
@@ -39,25 +41,35 @@ class Searchable(object):
     self.start_point = start_point
 
   def Neighbors(self, state):
+    '''
+    Generates the neighbors of the given state in the search space.
+
+    Args:
+      state: The State object whose neighbors are to be returned.
+    Return:
+      A list of State objects.
+    '''
     raise NotImplementedError()
 
   def Assert(self, state):
+    '''
+    Assert if a given state satisfies the terminating condition.
+
+    Args:
+      state: The State Object to be asserted.
+    Return:
+      bool
+    '''
     raise NotImplementedError()
 
 
-class BFSnIterativeDeepening(object):
+class IterativeDeepening(object):
   '''
   This is a generic class for BFS with Iterative Deepening.
 
   It search on a Searchalbe object. Searchable objects should have
   field:
-    start_point:
-      An State object with
-        fields:
-          state:     The state.
-          history:  The path lead to the state from the state point.
-        method:
-          IsValid(state): Assert if the state is valid.
+    start_point:  An State object marking the start point of the search.
   methods:
     Neighbors(state): Generate the neighboring states.
     Assert(state):    Assert if the state meets the goal.
@@ -65,7 +77,7 @@ class BFSnIterativeDeepening(object):
   def __init__(self, searchable, max_queue_size=100, max_states_num=1000):
     '''
     Args:
-      searchable:     The Searchable object.
+      searchable:     The Searchable object representing the search space.
       max_queue_size: The maximum size of the queue maintained during BFS.
       max_states_num: The maximum number of states to be explored.
     '''
@@ -89,10 +101,11 @@ class BFSnIterativeDeepening(object):
 
   def BFS(self, seed=None, max_queue_size=None):
     '''
-    This function conducts BFS from the self.searchable.start_point
-    with a constraint in the maximum size of the queue and the maximum
-    number of states. It will then return the result and error code.
-
+    Args:
+      seed: A State object to start with. Default to
+        self.searchablestart_point.
+      max_queue_size: Maximum size of the queue maintained during
+        BFS. Default to self.max_queue_size.
     Returns:
       sol: The solution state. If not found, None is returned.
       err: Exit code
@@ -112,7 +125,7 @@ class BFSnIterativeDeepening(object):
       # Get unseen neighboring states.
       neighbors = self._GetNewNeighbors(node)
       # If max_queue_size is reached, stop bfs.
-      # Insert u back to the front of the queue.
+      # Insert node back to the front of the queue.
       if len(neighbors) + len(self.bfs_queue) > max_queue_size:
         self.bfs_queue.insert(0, node)
         return None, 2
@@ -185,11 +198,14 @@ class BFSnIterativeDeepening(object):
   def IterativeDeepening(self, seeds=None):
     '''
     This function repeatively call DFS (with constraint on depth and
-    maximum number of states), iterating over every element in
+    maximum number of states), iterating over every element in seeds
     self.bfs_queue as root. It returns the result and error code when
     the constraint on the number of states is met, or when no new
     state is to be discovered.
 
+    Args:
+      seeds: A list of State objects to start with. Default to
+        self.bfs_queue.
     Returns:
       sol: The solution state. If not found, None is returned.
       err: Exit code
