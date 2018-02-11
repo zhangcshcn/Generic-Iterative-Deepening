@@ -1,5 +1,6 @@
 #! /usr/bin/python2
 # -*- coding: utf-8 -*-
+
 from __future__ import print_function
 import logging
 
@@ -8,6 +9,33 @@ ERR_MESSAGE = {
     1: "NO SOLUTION for the problem.",
     2: "No solution found WITHIN GIVEN CONSTRAINS."
 }
+
+
+class Element(object):
+  def __init__(self, index, content):
+    self.index = index
+    self.content = content
+
+
+class State(object):
+  def __init__(self, state=("", ""), history=None):
+    self.state = state
+    self.history = history
+
+  def IsValid(self):
+    raise NotImplementedError()
+
+
+class Searchable(object):
+  def __init__(self, start_point=None):
+    self.start_point = start_point
+
+  def Neighbors(self, state):
+    raise NotImplementedError()
+
+  def Assert(self, state):
+    raise NotImplementedError()
+
 
 class BFSnIterativeDeepening(object):
   '''
@@ -18,7 +46,7 @@ class BFSnIterativeDeepening(object):
     start_point:
       An State object with
         fields:
-          seqs:     The state.
+          state:     The state.
           history:  The path lead to the state from the state point.
         method:
           IsValid(state): Assert if the state is valid.
@@ -49,7 +77,7 @@ class BFSnIterativeDeepening(object):
   def _GetNewNeighbors(self, state):
     return [
         neighbor for neighbor in self.searchable.Neighbors(state)
-        if neighbor.seqs not in self.seen_bfs_states]
+        if neighbor.state not in self.seen_bfs_states]
 
   def BFS(self):
     '''
@@ -83,7 +111,7 @@ class BFSnIterativeDeepening(object):
         if self.num_states_seen > self.max_states_num:
           # No solution was found within the limits of search.
           return None, 2
-        self.seen_bfs_states[neighbor.seqs] = neighbor.history
+        self.seen_bfs_states[neighbor.state] = neighbor.history
         if self.searchable.Assert(neighbor):
           # Solution found.
           return neighbor, 0
@@ -108,11 +136,11 @@ class BFSnIterativeDeepening(object):
     # Initialization.
     neighbors = self._GetNewNeighbors(root)
     for neighbor in neighbors:
-      if neighbor.seqs not in self.seen_dfs_states:
+      if neighbor.state not in self.seen_dfs_states:
         if self.num_states_seen >= self.max_states_num:
           return None, 2
         self.num_states_seen += 1
-        self.seen_dfs_states[neighbor.seqs] = neighbor.history
+        self.seen_dfs_states[neighbor.state] = neighbor.history
         if self.searchable.Assert(neighbor):
           return neighbor, 0
     dfs_stack = [(root, 1, neighbors)]
@@ -134,11 +162,11 @@ class BFSnIterativeDeepening(object):
       if not neighbors:
         continue
       for neighbor in neighbors:
-        if neighbor.seqs not in self.seen_dfs_states:
+        if neighbor.state not in self.seen_dfs_states:
           if self.num_states_seen >= self.max_states_num:
             return None, 2
           self.num_states_seen += 1
-          self.seen_dfs_states[neighbor.seqs] = neighbor.history
+          self.seen_dfs_states[neighbor.state] = neighbor.history
           if self.searchable.Assert(neighbor):
             return neighbor, 0
       dfs_stack.append((node, depth+1, neighbors))

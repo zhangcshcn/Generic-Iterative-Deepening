@@ -77,7 +77,7 @@ class DominoSpaceTest(unittest.TestCase):
     for idx, test_dominos in enumerate(dominos):
       test_result = map(self.Dominos._CatDomino, states, test_dominos)
       self.assertSequenceEqual(
-          [x.seqs for x in expected[idx]], [x.seqs for x in test_result])
+          [x.state for x in expected[idx]], [x.state for x in test_result])
       self.assertSequenceEqual(
           [x.history for x in expected[idx]], [x.history for x in test_result])
 
@@ -103,7 +103,7 @@ class DominoSpaceTest(unittest.TestCase):
     for idx, state in enumerate(states):
       test_result = self.Dominos.Neighbors(state)
       self.assertSequenceEqual(
-          [x.seqs for x in expected[idx]], [x.seqs for x in test_result])
+          [x.state for x in expected[idx]], [x.state for x in test_result])
       self.assertSequenceEqual(
           [x.history for x in expected[idx]], [x.history for x in test_result])
 
@@ -129,7 +129,7 @@ class DominoSpaceTest(unittest.TestCase):
         PostCorrespondenceState(("b", ""), [3])]
     test_result = self.Dominos.Neighbors(self.Dominos.start_point)
     self.assertSequenceEqual(
-        [x.seqs for x in expected], [x.seqs for x in test_result])
+        [x.state for x in expected], [x.state for x in test_result])
     self.assertSequenceEqual(
         [x.history for x in expected], [x.history for x in test_result])
 
