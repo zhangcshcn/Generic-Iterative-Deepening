@@ -1,15 +1,15 @@
 Generic Iteratic Deepening package for `python 2.7`
 
-Author: Chen Zhang
+Author: Chen Zhang  
 Email: zhangc.sh.cn@gmail.com 
 
 #### Background
-This package is originally a responce to Programming Assignment 1 of Aritifical Intelligence tough by Professor Ernest Davis with NYU.
+This package is originally a responce to [Programming Assignment 1](https://cs.nyu.edu/courses/spring18/CSCI-GA.2560-001/prog1.html) of Aritifical Intelligence tough by [Professor Ernest Davis](https://cs.nyu.edu/davise/) with NYU.
 1. [The Post Correspondence Problem](http://en.wikipedia.org/wiki/Post_correspondence_problem)  
 1. [Problem definition](https://cs.nyu.edu/courses/spring18/CSCI-GA.2560-001/hwk1.html)  
 1. [Coding requirements](https://cs.nyu.edu/courses/spring18/CSCI-GA.2560-001/prog1.html)  
 
-#### About  
+#### About
 I tried to make the program generic. Some abstract classes are raised in the prgram,
 even though Python 2 does not have official support for that. The code is well-documented
 with docstring. It is not going to be hard to figure out the definition
