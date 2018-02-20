@@ -103,7 +103,7 @@ class IterativeDeepening(object):
     '''
     Args:
       seed: A State object to start with. Default to
-        self.searchablestart_point.
+        self.searchable.start_point.
       max_queue_size: Maximum size of the queue maintained during
         BFS. Default to self.max_queue_size.
     Returns:
