@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/zhangcshcn/Generic-Iterative-Deepening.svg?branch=master)](https://travis-ci.org/zhangcshcn/Generic-Iterative-Deepening)
+
 Generic Iteratic Deepening package for `python 2.7`
 
 Author: Chen Zhang  
