@@ -12,6 +12,9 @@ This package is originally a responce to [Programming Assignment 1](https://cs.n
 1. [Problem definition](https://cs.nyu.edu/courses/spring18/CSCI-GA.2560-001/hwk1.html)  
 1. [Coding requirements](https://cs.nyu.edu/courses/spring18/CSCI-GA.2560-001/prog1.html)  
 
+#### Disclaimer
+If you want to use this software for **academic purposes, aka assignments**, please refer to the [**ACADEMIC INTEGRITY**](https://cs.nyu.edu/home/master/current_policy.html).
+
 #### About
 I tried to make the program generic. Some abstract classes are raised in the prgram,
 even though Python 2 does not have official support for that. The code is well-documented
